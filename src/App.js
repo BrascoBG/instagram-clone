@@ -1,30 +1,63 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import Post from "./components/Post/Post";
+import { db } from "./firebase.js";
+import { makeStyles } from "@material-ui/core/styles";
+import Modal from "@material-ui/core/Modal";
+import { Button } from "@material-ui/core";
+
+function getModalStyle() {
+  const top = 50;
+  const left = 50;
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
+  };
+}
+
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    position: "absolute",
+    width: 400,
+    backgroundColor: theme.palette.background.paper,
+    border: "2px solid #000",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
+}));
 
 function App() {
-  const [posts, setPosts] = useState([
-    {
-      imageUrl:
-        "https://itsg-global.com/wp-content/uploads/2016/09/react-js-to-use-or-not-to-use.png",
-      caption: "Building instagram clone",
-      username: "Ivo Krastev",
-    },
-    {
-      imageUrl:
-        "https://cf.bstatic.com/images/hotel/max1024x768/157/157737121.jpg",
-      caption: "Hello this is awesome!",
-      username: "Violeta Plachkova",
-    },
-    {
-      imageUrl:
-        "https://inews-prd-a-images.s3.eu-west-2.amazonaws.com/content/uploads/2018/09/winter-uk-snow.jpg",
-      caption: "Check out this clone project guys!",
-      username: "David Smith",
-    },
-  ]);
+  const classes = useStyles();
+  const [modalStyle] = useState(getModalStyle);
+  const [posts, setPosts] = useState([]);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    db.collection("posts").onSnapshot((snapshot) => {
+      setPosts(
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          post: doc.data(),
+        }))
+      );
+    });
+  }, []);
+
   return (
     <div className="app">
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <div style={modalStyle} className={classes.paper}>
+          <center>
+            <img
+              className="app__headerImage"
+              alt="logo"
+              src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
+            />
+          </center>
+        </div>
+      </Modal>
       <div className="app__header">
         <img
           className="app__headerImage"
@@ -32,11 +65,13 @@ function App() {
           src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
         />
       </div>
-      {posts.map((post) => (
+      <Button onClick={() => setOpen(true)}>Sign Up</Button>
+      {posts.map(({ post, id }) => (
         <Post
           imageUrl={post.imageUrl}
           caption={post.caption}
           username={post.username}
+          key={id}
         />
       ))}
     </div>
