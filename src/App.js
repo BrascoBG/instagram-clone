@@ -6,6 +6,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import { Button } from "@material-ui/core";
 import Input from "@material-ui/core/Input";
+import ImageUploader from "./components/ImageUploader/ImageUploader";
 
 function getModalStyle() {
   const top = 50;
@@ -55,14 +56,16 @@ function App() {
   }, [user, username]);
 
   useEffect(() => {
-    db.collection("posts").onSnapshot((snapshot) => {
-      setPosts(
-        snapshot.docs.map((doc) => ({
-          id: doc.id,
-          post: doc.data(),
-        }))
-      );
-    });
+    db.collection("posts")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) => {
+        setPosts(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            post: doc.data(),
+          }))
+        );
+      });
   }, []);
 
   const handleSignUp = (e) => {
@@ -159,17 +162,18 @@ function App() {
           alt="logo"
           src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
         />
+        {user ? (
+          <Button type="submit" onClick={() => auth.signOut()}>
+            Logout
+          </Button>
+        ) : (
+          <div className="app__loginContainer">
+            <Button onClick={() => setOpen(true)}>Sign Up</Button>
+            <Button onClick={() => setOpenSignIn(true)}>Sign In</Button>
+          </div>
+        )}
       </div>
-      {user ? (
-        <Button type="submit" onClick={() => auth.signOut()}>
-          Logout
-        </Button>
-      ) : (
-        <div className="app__loginContainer">
-          <Button onClick={() => setOpen(true)}>Sign Up</Button>
-          <Button onClick={() => setOpenSignIn(true)}>Sign In</Button>
-        </div>
-      )}
+
       {posts.map(({ post, id }) => (
         <Post
           imageUrl={post.imageUrl}
@@ -178,6 +182,11 @@ function App() {
           key={id}
         />
       ))}
+      {user?.displayName ? (
+        <ImageUploader username={user.displayName} />
+      ) : (
+        <h3>You need to Login to upload</h3>
+      )}
     </div>
   );
 }
