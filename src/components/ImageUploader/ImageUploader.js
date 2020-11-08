@@ -7,7 +7,6 @@ import firebase from "firebase";
 function ImageUploader({ username }) {
   const [caption, setCaption] = useState("");
   const [image, setImage] = useState(null);
-  const [url, setUrl] = useState("");
   const [progress, setProgress] = useState(0);
 
   const handleChange = (e) => {

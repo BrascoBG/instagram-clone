@@ -23,7 +23,9 @@ function Post({ postId, imageUrl, username, caption }) {
     };
   }, [postId]);
 
-  const postComment = (event) => {};
+  const postComment = (event) => {
+    event.preventDefault();
+  };
 
   return (
     <div className="post">
