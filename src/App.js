@@ -44,7 +44,6 @@ function App() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
-        console.log(authUser);
         setUser(authUser);
       } else {
         setUser(null);
@@ -180,6 +179,7 @@ function App() {
             imageUrl={post.imageUrl}
             caption={post.caption}
             username={post.username}
+            user={user}
             key={id}
             postId={id}
           />
@@ -189,7 +189,7 @@ function App() {
       {user?.displayName ? (
         <ImageUploader username={user.displayName} />
       ) : (
-        <h3>You need to Login to upload</h3>
+        <center>You need to Login to upload</center>
       )}
     </div>
   );
